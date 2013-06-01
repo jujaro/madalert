@@ -1,0 +1,23 @@
+# Trying to define expressions in a parseable language like json
+# the expressions can be parsed to execute queries over the 
+# data available in web services
+{
+	"type":"expr",
+	"left":{
+		"type":"expr",
+		"left":{
+			"type":"att",
+			"cls":"question",
+			"att":"owner"
+		},
+		"op":"getatt",
+		"right":{
+			"type":"const",
+			"value":"reputation"
+		}
+	},
+	"op":">",
+	"right":{
+		"type":"const",
+		"value":100
+}
