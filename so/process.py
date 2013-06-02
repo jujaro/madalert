@@ -1,5 +1,6 @@
 from source import so_Tags, so_Questions
 import datetime
+import time
 import model as md
 import log as Log
 log = Log.getLogger('so.process')
@@ -9,6 +10,7 @@ log = Log.getLogger('so.process')
 REPORT_SIZE = 20
 
 # Process
+@Log.fn_logger(log.debug)
 def collect():
 	log.debug("Star collecting")
 	for page in range(1,10):
@@ -30,7 +32,8 @@ def collect():
 		if end:
 			break
 	log.debug("End collection")
-
+	
+@Log.fn_logger(log.debug)
 def top_growth_results():
 	tags = [ t for t in md.SOTag.select().where(md.SOTag.status == "ENABLED")]
 	top_day_growth = sorted(
@@ -47,6 +50,7 @@ def top_growth_results():
 		reverse = True)[0:REPORT_SIZE]
 	return top_day_growth, top_week_growth, top_month_growth
 
+@Log.fn_logger(log.debug)
 def get_growth_results():
 	log.info("Start collect")
 	collect()
@@ -55,6 +59,7 @@ def get_growth_results():
 	log.info("Start report")
 	return top_growth_results()
 
+@Log.fn_logger(log.debug)
 def save_questions(questions):
 	with md.transaction():
 		for question in questions:
@@ -62,9 +67,9 @@ def save_questions(questions):
 					url = question["link"],
 					log_date = datetime.date.today()
 					)
-			log.debug("Question saved")
-	log.debug("All questions saved")
-
+	log.debug("%d questions saved" % len(questions))
+	
+@Log.fn_logger(log.debug)
 def get_python_questions(page_range):
 	params = {
 			"tagged": "python",
@@ -72,12 +77,14 @@ def get_python_questions(page_range):
 			}
 	result = []
 	for page in xrange(1,page_range+1):
-		for question in so_Questions().get_items(page = page, pagesize = 100, **params):
-			print question
-			log.info(str(datetime.datetime.fromtimestamp(question["creation_date"])))
+		log.debug("Page = page")
+		for question in so_Questions().get_items(page = page, **params):
+			#log.debug(str(datetime.datetime.fromtimestamp(question["creation_date"])))
 			result.append(question)
+	log.debug("get_python_questions returns %d questions" % len(result))
 	return result
 
+@Log.fn_logger(log.debug)
 def so_bulletin_filter(questions):
 	min_score = 5
 	min_reput = 100
@@ -100,7 +107,8 @@ def so_bulletin_filter(questions):
 		result.append(question)
 	return result
 
-def so_potential_answer_filter(questions):
+@Log.fn_logger(log.debug)
+def so_potential_answer_filter(questions,minutes):
 	min_reput = 100
 	ignore_set = set([
 		'django','matplotlib','sqlalchemy','py2exe','pandas','numpy','tornado','opencv',
@@ -110,21 +118,31 @@ def so_potential_answer_filter(questions):
 		])
 	result = []
 	for question in questions:
-		if datetime.datetime.fromtimestamp(question["creation_date"]) - datetime.datetime.now() > datetime.timedelta(minutes=4):
-			continue
+		log.debug("so_potential_answer_filter:Filtering: %s" % str(question))
+		if ( time.time() - question["creation_date"]) > (minutes * 60):
+			log.debug("filtered for creation date, no more tests")
+			break
 		if set(question['tags']).intersection(ignore_set):
+			log.debug("filtered for tags")
 			continue
 		if question["owner"].get("reputation",0) < min_reput :
+			log.debug("filtered for owner reputation")
 			continue
 		if question["is_answered"]:
-			return
-		if	md.SOAlertedQuestions.exists(question["link"]):
+			log.debug("filtered for already answered")
 			continue
+		if	md.SOAlertedQuestions.exists(question["link"]):
+			log.debug("filtered for already alerted")
+			continue
+		log.debug("Added to the alert list")
 		result.append(question)
+	log.debug("Result: %d questions" % len(result))
 	return result
 
+@Log.fn_logger(log.debug)
 def so_bulletin_get():
 		return so_bulletin_filter(get_python_questions(page_range = 10))
 	
-def so_potential_answer_get():
-		return so_potential_answer_filter(get_python_questions(page_range = 1))
+@Log.fn_logger(log.debug)
+def so_potential_answer_get(minutes):
+		return so_potential_answer_filter(get_python_questions(page_range = 1),minutes = minutes)

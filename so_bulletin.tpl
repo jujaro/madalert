@@ -1,7 +1,7 @@
 <head>
 </head>
 <body>
-<h2>Last Day growth</h2>
+<h2>SO Bulletin</h2>
 <table border="1" cellpadding="0" cellspacing="0" style="width: 500px;">
 	<thead>
 		<tr>

@@ -2,6 +2,8 @@ import smtplib
 from email.mime.text import MIMEText
 
 def sendmail(frm,to,subject,message,login,password):
+	if isinstance(message,unicode):
+		message = message.decode('ascii','replace')
 	msg = MIMEText(message, 'html')
 	msg['Subject'] = subject
 	msg['From'] = frm
