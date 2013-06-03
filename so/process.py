@@ -141,7 +141,7 @@ def so_potential_answer_filter(questions,minutes):
 
 @Log.fn_logger(log.debug)
 def so_bulletin_get():
-		return so_bulletin_filter(get_python_questions(page_range = 10))
+		return so_bulletin_filter(get_python_questions(page_range = 15))
 	
 @Log.fn_logger(log.debug)
 def so_potential_answer_get(minutes):

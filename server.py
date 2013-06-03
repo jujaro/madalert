@@ -34,7 +34,7 @@ def so_growth_stats_mail():
 			)
 	
 @Log.fn_logger(log.debug)
-@sched.cron_schedule(day = '1-31', hour = '5-17', minute = '0')
+@sched.cron_schedule(day = '1-31', hour = '5,17', minute = '0')
 def so_bulletin_mail():
 	# Collect the results
 	questions = so.process.so_bulletin_get()
@@ -71,7 +71,6 @@ def so_potential_answer_push_notification():
 	# Save the result
 	so.process.save_questions(questions)
 
-so_potential_answer_push_notification()
 s = ""
 while not s or s[0]!= "q":
 	s = raw_input('Hit q<Enter> to finish')
