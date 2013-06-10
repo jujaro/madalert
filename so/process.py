@@ -86,7 +86,7 @@ def get_python_questions(page_range):
 
 @Log.fn_logger(log.debug)
 def so_bulletin_filter(questions):
-	min_score = 5
+	min_score = 3
 	min_reput = 100
 	ignore_set = set([
 		'django','matplotlib','sqlalchemy','py2exe','pandas','numpy','tornado','opencv',

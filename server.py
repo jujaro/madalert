@@ -38,6 +38,8 @@ def so_growth_stats_mail():
 def so_bulletin_mail():
 	# Collect the results
 	questions = so.process.so_bulletin_get()
+	if not questions:
+		return
 	# Create the template
 	msg = bt.template('so_bulletin',questions=questions)
 	# Send the email
@@ -53,11 +55,11 @@ def so_bulletin_mail():
 	so.process.save_questions(questions)
 
 @Log.fn_logger(log.debug)
-@sched.cron_schedule(day = '1-31', hour = '6,7,8,16,17,21,22', minute = '0,10,20,30,40,50')
+@sched.cron_schedule(day = '1-31', hour = '8,16,17,21', minute = '0,5,10,15,20,25,30,35,40,45,50,55')
 def so_potential_answer_push_notification():
 	log.info('so_potential_answer_push_notification')
 	# Collect the results
-	questions = so.process.so_potential_answer_get(minutes = 10)
+	questions = so.process.so_potential_answer_get(minutes = 3)
 	log.info('%d questions' % len(questions))
 	# Send the push notifications
 	for q in questions:
